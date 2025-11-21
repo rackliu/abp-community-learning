@@ -6,8 +6,24 @@ export default withMermaid(defineConfig({
   description: "ABP Framework V9.3 開源社群版教學",
   lang: 'zh-TW',
   
-  // 排除規劃文件和內部文件
-  srcExclude: ['**/課程設計概要.md', '**/章節學習目標與先修需求.md', '**/圖表渲染說明.md', '**/part*.md'],
+  // 排除規劃文件、內部文件和包含佔位符連結的檔案
+  srcExclude: [
+    '**/課程設計概要.md', 
+    '**/章節學習目標與先修需求.md', 
+    '**/圖表渲染說明.md', 
+    '**/part*.md',
+    '**/SUMMARY.md'  // GitBook 格式目錄，包含死連結
+  ],
+  
+  // 忽略特定模式的死連結（佔位符和 localhost）
+  ignoreDeadLinks: [
+    // 忽略所有 :999 佔位符錨點
+    /\.md:999$/,
+    // 忽略 localhost 連結
+    /^http:\/\/localhost/,
+    // 忽略 LICENSE 檔案（如果不存在）
+    /\.\/LICENSE$/
+  ],
   
   themeConfig: {
     nav: [
