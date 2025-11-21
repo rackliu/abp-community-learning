@@ -5,6 +5,10 @@ export default withMermaid(defineConfig({
   title: "ABP Community Learning",
   description: "ABP Framework V9.3 開源社群版教學",
   lang: 'zh-TW',
+  
+  // 排除規劃文件和內部文件
+  srcExclude: ['**/課程設計概要.md', '**/章節學習目標與先修需求.md', '**/圖表渲染說明.md', '**/part*.md'],
+  
   themeConfig: {
     nav: [
       { text: '首頁', link: '/' },
@@ -101,8 +105,7 @@ export default withMermaid(defineConfig({
           { text: '第二十一章解答', link: '/content/solutions/ch21-solutions' },
           { text: '第二十二章解答', link: '/content/solutions/ch22-solutions' },
           { text: '第二十三章解答', link: '/content/solutions/ch23-solutions' },
-          { text: '第二十四章解答', link: '/content/solutions/ch24-solutions' },
-          { text: '第二十五章解答', link: '/content/solutions/ch25-solutions' }
+          { text: '第二十四章解答', link: '/content/solutions/ch24-solutions' }
         ]
       }
     ],
