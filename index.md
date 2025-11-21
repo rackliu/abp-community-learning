@@ -11,7 +11,7 @@ hero:
       link: /content/ch01
     - theme: alt
       text: "查看 GitHub"
-      link: https://github.com/your-repo
+      link: https://github.com/rackliu/abp-community-learning
 
 features:
   - title: "完整學習路徑"

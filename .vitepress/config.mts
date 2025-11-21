@@ -153,7 +153,7 @@ export default withMermaid(defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/your-repo' }
+      { icon: 'github', link: 'https://github.com/rackliu/abp-community-learning' }
     ],
     
     footer: {
