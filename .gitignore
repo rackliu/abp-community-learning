@@ -1,0 +1,9 @@
+node_modules
+.vitepress/dist
+.vitepress/cache
+*.pdf
+temp_*.md
+generated_diagrams
+mermaid-filter.err
+*.log
+.DS_Store

@@ -1,0 +1,206 @@
+---
+# ABP Framework 學習教材 - 題庫
+# 版本：1.0.0
+# 最後更新：2025-11-18
+
+chapters:
+  ch01:
+    title: "現代軟體開發與 ABP Framework"
+    questions:
+      - id: ch01_q01
+        type: "multiple_choice"
+        difficulty: "basic"
+        question: "ABP Framework 的核心特性不包括以下哪一項？"
+        options:
+          - text: "模組化設計"
+            correct: false
+          - text: "領域驅動設計支援"
+            correct: false
+          - text: "自動 API 生成"
+            correct: false
+          - text: "前端框架（React/Vue）"
+            correct: true
+        explanation: "ABP Framework 提供模組化、DDD 支援與自動 API 生成，但不包含前端框架。前端可選擇 Razor Pages、Blazor 或 React 等。"
+        references:
+          - "Ch1.1 ABP Framework 介紹"
+          - "https://docs.abp.io"
+
+      - id: ch01_q02
+        type: "fill_in_blank"
+        difficulty: "basic"
+        question: "ABP 推薦的分層結構包括 ___、___、___ 和 ___ 四層。"
+        answers:
+          - "Presentation"
+          - "Application"
+          - "Domain"
+          - "Infrastructure"
+        explanation: "ABP 採用四層架構：表現層（Presentation）、應用層（Application）、領域層（Domain）、基礎設施層（Infrastructure）。"
+        references:
+          - "Ch1.5 ABP 架構理念"
+
+      - id: ch01_q03
+        type: "analysis"
+        difficulty: "advanced"
+        question: "您正在設計一個電商平台，預計 3 年內從 10 人團隊成長到 50 人。請評估應該採用哪種架構，並說明理由。"
+        expected_answer: |
+          初期（0–1 年）：採用分層架構，快速開發核心功能
+          中期（1–2 年）：準備微服務遷移，識別業務邊界
+          後期（2–3 年）：逐步遷移至微服務，支援獨立部署與擴展
+        explanation: "隨著團隊規模與系統複雜度增加，應逐步從分層架構遷移至微服務架構。"
+        references:
+          - "Ch1.3 架構選型指南"
+
+  ch02:
+    title: "ABP Framework 快速入門"
+    questions:
+      - id: ch02_q01
+        type: "multiple_choice"
+        difficulty: "basic"
+        question: "ABP 應用程式開發中，哪一層負責業務邏輯實作？"
+        options:
+          - text: "Presentation 層"
+            correct: false
+          - text: "Application 層"
+            correct: false
+          - text: "Domain 層"
+            correct: true
+          - text: "Infrastructure 層"
+            correct: false
+        explanation: "Domain 層（領域層）負責實作核心業務邏輯、聚合、實體與領域服務。"
+        references:
+          - "Ch2.3 專案結構解析"
+
+      - id: ch02_q02
+        type: "fill_in_blank"
+        difficulty: "basic"
+        question: "ABP 使用 _____ 系統來組織應用程式的各個部分。"
+        answers:
+          - "Module"
+          - "module"
+        explanation: "ABP 使用 Module 系統來組織應用程式，每個 Module 包含依賴聲明、服務註冊、資料庫配置等。"
+        references:
+          - "Ch2.4 Module 系統"
+
+      - id: ch02_q03
+        type: "code"
+        difficulty: "advanced"
+        question: "建立一個 Author 實體，包含 Name 和 Email 屬性，並建立對應的 DTO 與應用服務。"
+        expected_code: |
+          // Domain Layer
+          public class Author : FullAuditedAggregateRoot<Guid>
+          {
+              public string Name { get; set; }
+              public string Email { get; set; }
+          }
+          
+          // Application Layer DTO
+          public class AuthorDto
+          {
+              public Guid Id { get; set; }
+              public string Name { get; set; }
+              public string Email { get; set; }
+          }
+          
+          // Application Service
+          public class AuthorAppService : CrudAppService<Author, AuthorDto, Guid>
+          {
+              public AuthorAppService(IRepository<Author, Guid> repository)
+                  : base(repository)
+              {
+              }
+          }
+        explanation: "遵循 ABP 的分層架構，在 Domain 層定義實體，Application 層定義 DTO 與服務。"
+        references:
+          - "Ch2.8 建立第一個實體與服務"
+
+  ch03:
+    title: "實戰應用程式開發流程"
+    questions:
+      - id: ch03_q01
+        type: "multiple_choice"
+        difficulty: "basic"
+        question: "ABP 應用程式開發流程中，哪一步應該首先進行？"
+        options:
+          - text: "實作"
+            correct: false
+          - text: "需求分析"
+            correct: true
+          - text: "測試"
+            correct: false
+          - text: "部署"
+            correct: false
+        explanation: "開發流程應從需求分析開始，識別業務域、定義聚合與實體、規劃 API 端點。"
+        references:
+          - "Ch3.1 開發流程概述"
+
+      - id: ch03_q02
+        type: "design"
+        difficulty: "advanced"
+        question: "為『線上課程平台』設計領域模型，包括聚合根、實體與值物件。"
+        expected_answer: |
+          聚合根：
+          - Course（課程聚合）
+          - Student（學生聚合）
+          - Enrollment（報名聚合）
+          
+          實體：
+          - Lesson（課程課節）
+          - Assignment（作業）
+          
+          值物件：
+          - CourseCategory（課程分類）
+          - StudentProgress（學生進度）
+        explanation: "根據業務需求識別聚合根、實體與值物件，設計清晰的領域模型。"
+        references:
+          - "Ch3.3 領域設計"
+
+  ch04:
+    title: "認識官方參考解決方案"
+    questions:
+      - id: ch04_q01
+        type: "multiple_choice"
+        difficulty: "basic"
+        question: "EasyAbp 的主要特點不包括以下哪一項？"
+        options:
+          - text: "開源且免費"
+            correct: false
+          - text: "與 ABP 框架高度整合"
+            correct: false
+          - text: "提供商業支援"
+            correct: true
+          - text: "社群驅動開發"
+            correct: false
+        explanation: "EasyAbp 是開源社群模組，不提供商業支援。商業支援由 ABP 官方提供。"
+        references:
+          - "Ch4.3 社群模組（EasyAbp）"
+
+      - id: ch04_q02
+        type: "fill_in_blank"
+        difficulty: "basic"
+        question: "ABP 官方提供的三個主要範例是 ___、___ 和 ___。"
+        answers:
+          - "BookStore"
+          - "Microservice"
+          - "EShop"
+        explanation: "ABP 官方提供 BookStore（基礎）、Microservice（微服務）、EShop（電商）三個主要範例。"
+        references:
+          - "Ch4.2 官方範例詳解"
+
+scoring:
+  basic: 1
+  advanced: 2
+  code: 3
+  design: 3
+
+difficulty_levels:
+  basic: "基礎題 - 測試基本概念理解"
+  advanced: "進階題 - 要求分析與設計能力"
+  code: "程式題 - 要求實際編碼"
+  design: "設計題 - 要求系統設計能力"
+
+question_types:
+  multiple_choice: "選擇題"
+  fill_in_blank: "填空題"
+  analysis: "分析題"
+  code: "程式題"
+  design: "設計題"
