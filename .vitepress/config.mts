@@ -5,8 +5,6 @@ export default withMermaid(defineConfig({
   title: "ABP Community Learning",
   description: "ABP Framework V9.3 開源社群版教學",
   lang: 'zh-TW',
-  
-  // GitHub Pages 部署路徑
   base: '/abp-community-learning/',
   
   // 排除規劃文件、內部文件和包含佔位符連結的檔案
