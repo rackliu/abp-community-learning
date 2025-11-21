@@ -115,7 +115,7 @@ public class BookTests
 
 ## 參考與補充
 
-- 章節原稿：[`content/ch01.md`](content/ch01.md:1)
+- 章節原稿：[`content/ch01.md`](../ch01)
 - ABP 官方文件（以 content7 為主要來源）：https://docs.abp.io/en/abp/latest/
 
 ## 版權與引用說明
