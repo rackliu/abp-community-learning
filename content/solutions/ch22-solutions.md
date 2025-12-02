@@ -19,7 +19,7 @@
 **單階段建置（較大）**：
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:9.0
+FROM mcr.microsoft.com/dotnet/sdk:10.0
 WORKDIR /app
 COPY . .
 RUN dotnet restore
@@ -33,14 +33,14 @@ RUN dotnet publish -c Release -o out
 
 ```dockerfile
 # 階段 1：建置
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
 RUN dotnet restore
 RUN dotnet publish -c Release -o /app/publish
 
 # 階段 2：執行時
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
@@ -73,7 +73,7 @@ COPY --from=build /app/publish .
 
 ```dockerfile
 # 階段 1：還原依賴（利用快取）
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS restore
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
 WORKDIR /src
 COPY ["*.csproj", "./"]
 RUN dotnet restore
@@ -88,7 +88,7 @@ FROM build AS publish
 RUN dotnet publish -c Release -o /app/publish --no-build
 
 # 階段 4：最終映像
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser

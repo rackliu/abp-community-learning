@@ -19,7 +19,7 @@
 ```dockerfile
 # Dockerfile
 # Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # 複製專案檔案並還原（利用 Docker 快取層）
@@ -44,7 +44,7 @@ FROM build AS publish
 RUN dotnet publish "BookStore.HttpApi.Host.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 3: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 # 安裝 curl（用於健康檢查）
@@ -182,7 +182,7 @@ networks:
 
 ```dockerfile
 # Dockerfile.Migrator
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["src/BookStore.DbMigrator/BookStore.DbMigrator.csproj", "src/BookStore.DbMigrator/"]
@@ -199,7 +199,7 @@ RUN dotnet build "BookStore.DbMigrator.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "BookStore.DbMigrator.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/runtime:9.0 AS final
+FROM mcr.microsoft.com/dotnet/runtime:10.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "BookStore.DbMigrator.dll"]
@@ -648,7 +648,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore dependencies
         run: dotnet restore

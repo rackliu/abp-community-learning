@@ -137,8 +137,12 @@ public class BookStoreResourceDefinitionProvider : LocalizationResourceDefinitio
   "Book:Title": "書籍",
   "Book:Create": "建立書籍",
   "Book:Edit": "編輯書籍",
-  "Book:Delete": "刪除書籍"
+  "Book:Delete": "刪除書籍",
+  "Menu": {
+    "Home": "首頁"
+  }
 }
+
 
 // Localization/BookStore/en.json
 {

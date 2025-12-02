@@ -194,11 +194,11 @@ graph TD
 
 | 模組               | ABP 版本 | .NET 版本 | 其他相依性              |
 | ------------------ | -------- | --------- | ----------------------- |
-| FileManagement     | 9.3.x    | .NET 9.0  | BlobStoring             |
-| NotificationCenter | 9.3.x    | .NET 9.0  | BackgroundJobs, SignalR |
-| PaymentService     | 9.3.x    | .NET 9.0  | EventBus                |
-| SettingUi          | 9.3.x    | .NET 9.0  | SettingManagement       |
-| DataDictionary     | 9.3.x    | .NET 9.0  | Caching                 |
+| FileManagement     | 10.0.x   | .NET 10.0 | BlobStoring             |
+| NotificationCenter | 10.0.x   | .NET 10.0 | BackgroundJobs, SignalR |
+| PaymentService     | 10.0.x   | .NET 10.0 | EventBus                |
+| SettingUi          | 10.0.x   | .NET 10.0 | SettingManagement       |
+| DataDictionary     | 10.0.x   | .NET 10.0 | Caching                 |
 
 **風險識別與緩解策略**：
 
@@ -252,12 +252,12 @@ graph TD
 
   <ItemGroup>
     <!-- ABP Framework -->
-    <PackageVersion Include="Volo.Abp" Version="9.3.0" />
-    <PackageVersion Include="Volo.Abp.BlobStoring" Version="9.3.0" />
-    <PackageVersion Include="Volo.Abp.BackgroundJobs" Version="9.3.0" />
-    <PackageVersion Include="Volo.Abp.EventBus" Version="9.3.0" />
-    <PackageVersion Include="Volo.Abp.SettingManagement" Version="9.3.0" />
-    <PackageVersion Include="Volo.Abp.Caching" Version="9.3.0" />
+    <PackageVersion Include="Volo.Abp" Version="10.0.0" />
+    <PackageVersion Include="Volo.Abp.BlobStoring" Version="10.0.0" />
+    <PackageVersion Include="Volo.Abp.BackgroundJobs" Version="10.0.0" />
+    <PackageVersion Include="Volo.Abp.EventBus" Version="10.0.0" />
+    <PackageVersion Include="Volo.Abp.SettingManagement" Version="10.0.0" />
+    <PackageVersion Include="Volo.Abp.Caching" Version="10.0.0" />
 
     <!-- EasyAbp Modules -->
     <PackageVersion Include="EasyAbp.FileManagement.Domain" Version="6.0.0" />

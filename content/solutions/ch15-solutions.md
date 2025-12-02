@@ -381,7 +381,55 @@ namespace Volo.Comment.Comments
 }
 ```
 
-#### 步驟 6：配置 AutoMapper
+#### 步驟 6：配置物件映射 (V10 更新)
+
+> **ABP V10 變更**: 預設物件映射工具已改為 **Mapperly**。以下提供兩種方式:
+
+**方式 1: 使用 Mapperly (推薦 - V10)**
+
+```csharp
+// Volo.Comment.Application/CommentMapper.cs
+using Riok.Mapperly.Abstractions;
+using Volo.Comment.Comments;
+
+namespace Volo.Comment
+{
+    [Mapper]
+    public partial class CommentMapper
+    {
+        // Entity -> DTO
+        public partial CommentDto CommentToDto(Comment comment);
+
+        // List mapping
+        public partial List<CommentDto> CommentsToDto(List<Comment> comments);
+
+        // CreateDTO -> Entity (手動實作建構函式)
+        public Comment CreateDtoToComment(CreateCommentDto dto)
+        {
+            return new Comment(
+                Guid.NewGuid(),
+                dto.EntityType,
+                dto.EntityId,
+                dto.Content,
+                dto.Rating,
+                dto.ParentId,
+                null // tenantId
+            );
+        }
+    }
+}
+```
+
+然後在 Module 中註冊:
+
+```csharp
+public override void ConfigureServices(ServiceConfigurationContext context)
+{
+    context.Services.AddTransient<CommentMapper>();
+}
+```
+
+**方式 2: 使用 AutoMapper (舊版參考)**
 
 ```csharp
 // Volo.Comment.Application/CommentApplicationAutoMapperProfile.cs

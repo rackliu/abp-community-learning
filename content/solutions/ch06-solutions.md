@@ -84,6 +84,10 @@ abp new MyApp -t app -d ef
 abp new MyApp -t app -d mongo
 ```
 
+#### V10 更新：EF Core 共用實體類型 (Shared Entity Types)
+
+ABP V10 引入了對 EF Core 共用實體類型的支援，允許在執行時動態設定 Repository 的實體名稱（例如 `SetEntityName("Books_Archive")`），這在多租戶資料隔離或資料封存場景中非常有用。這是 EF Core 相對於 MongoDB 的一個新優勢。
+
 ---
 
 ## 習題 3：計算/練習題 ⭐⭐

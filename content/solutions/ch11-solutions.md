@@ -169,46 +169,43 @@ namespace BookStore.Authors
 
 ### 題目
 
-1. 在 `AutoMapperProfile` 中設定 `Author` 到 `AuthorDto` 的映射。
-2. 使用 `.ForMember` 實作 `ShortBio` 的邏輯。
+1. 使用 **Mapperly** 實作 `Author` 到 `AuthorDto` 的映射。
+2. 實作 `ShortBio` 的自訂映射邏輯（取 Bio 的前 50 字元）。
 
 ### 解答
 
-#### 步驟 1：建立 AutoMapper Profile
+#### 步驟 1：建立 Mapper 類別
 
-在 `Application` 專案中建立或編輯 AutoMapper Profile：
+在 `Application` 專案中建立 `BookStoreMapper` 類別。請注意，Mapperly 使用 **Source Generators**，因此類別必須是 `partial`。
 
 ```csharp
-// Application/BookStoreApplicationAutoMapperProfile.cs
-using AutoMapper;
+// Application/BookStoreMapper.cs
+using Riok.Mapperly.Abstractions;
 using BookStore.Authors;
 
 namespace BookStore
 {
-    public class BookStoreApplicationAutoMapperProfile : Profile
+    [Mapper]
+    public partial class BookStoreMapper
     {
-        public BookStoreApplicationAutoMapperProfile()
-        {
-            // Entity -> DTO (包含 ShortBio 計算)
-            CreateMap<Author, AuthorDto>()
-                .ForMember(dest => dest.ShortBio, opt => opt.MapFrom(src => GetShortBio(src.Bio)));
+        // Entity -> DTO
+        [MapProperty(nameof(Author.Bio), nameof(AuthorDto.ShortBio), Use = nameof(MapShortBio))]
+        public partial AuthorDto AuthorToAuthorDto(Author author);
 
-            // CreateDTO -> Entity
-            CreateMap<CreateUpdateAuthorDto, Author>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreationTime, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatorId, opt => opt.Ignore())
-                .ForMember(dest => dest.LastModificationTime, opt => opt.Ignore())
-                .ForMember(dest => dest.LastModifierId, opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
-                .ForMember(dest => dest.DeleterId, opt => opt.Ignore())
-                .ForMember(dest => dest.DeletionTime, opt => opt.Ignore());
-        }
+        // CreateDTO -> Entity
+        // 忽略由 ABP 自動管理的屬性
+        [MapperIgnoreTarget(nameof(Author.Id))]
+        [MapperIgnoreTarget(nameof(Author.CreationTime))]
+        [MapperIgnoreTarget(nameof(Author.CreatorId))]
+        [MapperIgnoreTarget(nameof(Author.LastModificationTime))]
+        [MapperIgnoreTarget(nameof(Author.LastModifierId))]
+        [MapperIgnoreTarget(nameof(Author.IsDeleted))]
+        [MapperIgnoreTarget(nameof(Author.DeleterId))]
+        [MapperIgnoreTarget(nameof(Author.DeletionTime))]
+        public partial Author CreateDtoToAuthor(CreateUpdateAuthorDto dto);
 
-        /// <summary>
-        /// 取得簡短傳記（前 50 字元）
-        /// </summary>
-        private static string GetShortBio(string bio)
+        // 自訂映射邏輯
+        private string MapShortBio(string bio)
         {
             if (string.IsNullOrWhiteSpace(bio))
             {
@@ -223,78 +220,20 @@ namespace BookStore
 }
 ```
 
-#### 步驟 2：進階映射技巧
+#### 步驟 2：註冊 Mapper（可選）
 
-**方法 1：使用 Lambda 表達式（內聯）**
+如果您希望像 AutoMapper 一樣透過 `IObjectMapper` 介面使用，可以實作 `IObjectMapper<TSource, TDestination>`，但在 ABP V10 中，直接注入 `BookStoreMapper` 或使用擴充方法是更高效的做法。
 
-```csharp
-CreateMap<Author, AuthorDto>()
-    .ForMember(dest => dest.ShortBio,
-        opt => opt.MapFrom(src =>
-            string.IsNullOrWhiteSpace(src.Bio)
-                ? string.Empty
-                : (src.Bio.Length <= 50 ? src.Bio : src.Bio.Substring(0, 50) + "...")));
-```
-
-**方法 2：使用擴展方法**
-
-```csharp
-// Application/Authors/AuthorExtensions.cs
-public static class AuthorExtensions
-{
-    public static string ToShortBio(this string bio, int maxLength = 50)
-    {
-        if (string.IsNullOrWhiteSpace(bio))
-        {
-            return string.Empty;
-        }
-
-        return bio.Length <= maxLength
-            ? bio
-            : bio.Substring(0, maxLength) + "...";
-    }
-}
-
-// 在 Profile 中使用
-CreateMap<Author, AuthorDto>()
-    .ForMember(dest => dest.ShortBio, opt => opt.MapFrom(src => src.Bio.ToShortBio()));
-```
-
-**方法 3：使用 Value Resolver（複雜邏輯）**
-
-```csharp
-// Application/Authors/ShortBioResolver.cs
-using AutoMapper;
-
-namespace BookStore.Authors
-{
-    public class ShortBioResolver : IValueResolver<Author, AuthorDto, string>
-    {
-        public string Resolve(Author source, AuthorDto destination, string destMember, ResolutionContext context)
-        {
-            if (string.IsNullOrWhiteSpace(source.Bio))
-            {
-                return string.Empty;
-            }
-
-            const int maxLength = 50;
-            return source.Bio.Length <= maxLength
-                ? source.Bio
-                : source.Bio.Substring(0, maxLength) + "...";
-        }
-    }
-}
-
-// 在 Profile 中使用
-CreateMap<Author, AuthorDto>()
-    .ForMember(dest => dest.ShortBio, opt => opt.MapFrom<ShortBioResolver>());
-```
+若要維持與 ABP `IObjectMapper` 的相容性，通常會保留 AutoMapper 作為預設，或使用 Mapperly 的 ABP 整合套件（若有）。但在高效能場景下，建議直接使用 Mapperly 生成的方法。
 
 **理論依據**：
 
-- `.ForMember` 允許自訂特定屬性的映射邏輯
-- `MapFrom` 指定來源屬性或計算邏輯
-- Value Resolver 適合複雜的映射邏輯，可重用且易於測試
+- **Mapperly** 是基於 Source Generator 的編譯時映射工具。
+- **效能**：比 AutoMapper 快得多，因為沒有執行時期的 Reflection 開銷。
+- **除錯**：生成的程式碼可讀且可除錯。
+- **[MapProperty]**：用於指定屬性對映與自訂轉換邏輯。
+
+---
 
 ---
 
@@ -304,6 +243,383 @@ CreateMap<Author, AuthorDto>()
 
 1. 使用 `CrudAppService` 快速實作 `AuthorAppService`。
 2. 覆寫 `CreateAsync` 方法，在建立前檢查作者是否已存在 (呼叫 Repository)。
+3. **(V10 更新)** 覆寫映射方法以使用 Mapperly 提升效能。
+
+### 解答
+
+#### 步驟 1：定義 Application Service 介面
+
+```csharp
+// Application.Contracts/Authors/IAuthorAppService.cs
+using System;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.Application.Services;
+
+namespace BookStore.Authors
+{
+    public interface IAuthorAppService :
+        ICrudAppService<
+            AuthorDto,
+            Guid,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateAuthorDto>
+    {
+    }
+}
+```
+
+#### 步驟 2：實作 Application Service（整合 Mapperly）
+
+為了獲得最佳效能，我們注入 `BookStoreMapper` 並覆寫 `CrudAppService` 的映射方法。
+
+```csharp
+// Application/Authors/AuthorAppService.cs
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Volo.Abp;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.Application.Services;
+using Volo.Abp.Domain.Repositories;
+
+namespace BookStore.Authors
+{
+    public class AuthorAppService :
+        CrudAppService<
+            Author,
+            AuthorDto,
+            Guid,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateAuthorDto>,
+        IAuthorAppService
+    {
+        private readonly BookStoreMapper _mapper;
+
+        public AuthorAppService(
+            IRepository<Author, Guid> repository,
+            BookStoreMapper mapper)
+            : base(repository)
+        {
+            _mapper = mapper;
+        }
+
+        // 覆寫：Entity -> DTO
+        protected override AuthorDto MapToGetOutputDto(Author entity)
+        {
+            return _mapper.AuthorToAuthorDto(entity);
+        }
+
+        // 覆寫：Entity List -> DTO List
+        // 注意：CrudAppService 預設會迴圈呼叫 MapToGetOutputDto，
+        // 若 Mapperly 有提供 List 映射方法也可在此優化。
+
+        // 覆寫：CreateDto -> Entity
+        protected override Author MapToEntity(CreateUpdateAuthorDto createInput)
+        {
+            return _mapper.CreateDtoToAuthor(createInput);
+        }
+
+        // 覆寫：UpdateDto -> Entity
+        protected override void MapToEntity(CreateUpdateAuthorDto updateInput, Author entity)
+        {
+            // Mapperly 支援 Update 方法：
+            // _mapper.Update(updateInput, entity);
+            // 這裡假設我們在 Mapper 中定義了 UpdateAuthorFromDto
+            // _mapper.UpdateAuthorFromDto(updateInput, entity);
+
+            // 若未定義 Update 方法，可暫時手動映射或使用 ObjectMapper (若仍有設定)
+            base.MapToEntity(updateInput, entity);
+        }
+
+        public override async Task<AuthorDto> CreateAsync(CreateUpdateAuthorDto input)
+        {
+            // 檢查作者是否已存在（根據姓名）
+            var existingAuthor = await Repository.FirstOrDefaultAsync(
+                a => a.Name == input.Name);
+
+            if (existingAuthor != null)
+            {
+                throw new UserFriendlyException(
+                    $"作者 '{input.Name}' 已經存在！",
+                    "AUTHOR_ALREADY_EXISTS");
+            }
+
+            return await base.CreateAsync(input);
+        }
+    }
+}
+```
+
+#### 步驟 3：進階實作（使用領域服務）
+
+更好的做法是將業務邏輯移到領域層（同原解答，此處省略重複代碼，僅強調 Application Service 的變化）。
+
+```csharp
+// Application/Authors/AuthorAppService.cs（使用領域服務 + Mapperly）
+public class AuthorAppService : ...
+{
+    private readonly AuthorManager _authorManager;
+    private readonly BookStoreMapper _mapper;
+
+    public AuthorAppService(
+        IRepository<Author, Guid> repository,
+        AuthorManager authorManager,
+        BookStoreMapper mapper)
+        : base(repository)
+    {
+        _authorManager = authorManager;
+        _mapper = mapper;
+    }
+
+    public override async Task<AuthorDto> CreateAsync(CreateUpdateAuthorDto input)
+    {
+        // 使用領域服務建立作者
+        var author = await _authorManager.CreateAsync(
+            input.Name,
+            input.BirthDate,
+            input.Bio
+        );
+
+        // 使用 Mapperly 映射為 DTO
+        return _mapper.AuthorToAuthorDto(author);
+    }
+}
+```
+
+**理論依據**：
+
+- **CrudAppService**：提供了快速開發 CRUD 的基底類別。
+- **覆寫映射方法**：這是將 Mapperly 整合進 `CrudAppService` 的關鍵，透過覆寫 `MapToGetOutputDto` 和 `MapToEntity`，我們可以繞過預設的 `ObjectMapper` (AutoMapper)，改用高效的編譯時映射。
+- **依賴注入**：直接注入 Mapper 類別是使用 Mapperly 的標準方式。
+
+---
+
+## 總結
+
+本章練習涵蓋了 ABP Framework 應用層設計的核心概念：
+
+1. **DTO 設計**：
+
+   - 使用 ABP 提供的基類（`AuditedEntityDto`）
+   - 遵循命名慣例（`CreateDto`、`UpdateDto`）
+
+2. **物件映射 (V10)**：
+
+   - 使用 **Mapperly** 取代 AutoMapper
+   - 定義 `partial` Mapper 類別與 `[Mapper]` 屬性
+   - 在 Service 中直接注入並使用 Mapper
+
+3. **CRUD 實作**：
+   - 使用 `CrudAppService` 快速開發
+   - 覆寫映射方法以整合 Mapperly
+   - 使用領域服務封裝業務規則
+
+**最佳實踐**：
+
+- DTO 應該是「啞」物件，不包含業務邏輯
+- 複雜的業務規則應放在領域層
+- 使用 ABP 的異常類型提供友善的錯誤訊息
+- **優先使用 Mapperly** 以獲得最佳效能與型別安全
+
+---
+
+## 參考資源
+
+- **效能**：比 AutoMapper 快得多，因為沒有執行時期的 Reflection 開銷。
+- **除錯**：生成的程式碼可讀且可除錯。
+- **[MapProperty]**：用於指定屬性對映與自訂轉換邏輯。
+
+---
+
+---
+
+## 練習 3：實作 CRUD
+
+### 題目
+
+1. 使用 `CrudAppService` 快速實作 `AuthorAppService`。
+2. 覆寫 `CreateAsync` 方法，在建立前檢查作者是否已存在 (呼叫 Repository)。
+3. **(V10 更新)** 覆寫映射方法以使用 Mapperly 提升效能。
+
+### 解答
+
+#### 步驟 1：定義 Application Service 介面
+
+```csharp
+// Application.Contracts/Authors/IAuthorAppService.cs
+using System;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.Application.Services;
+
+namespace BookStore.Authors
+{
+    public interface IAuthorAppService :
+        ICrudAppService<
+            AuthorDto,
+            Guid,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateAuthorDto>
+    {
+    }
+}
+```
+
+#### 步驟 2：實作 Application Service（整合 Mapperly）
+
+為了獲得最佳效能，我們注入 `BookStoreMapper` 並覆寫 `CrudAppService` 的映射方法。
+
+```csharp
+// Application/Authors/AuthorAppService.cs
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Volo.Abp;
+using Volo.Abp.Application.Dtos;
+using Volo.Abp.Application.Services;
+using Volo.Abp.Domain.Repositories;
+
+namespace BookStore.Authors
+{
+    public class AuthorAppService :
+        CrudAppService<
+            Author,
+            AuthorDto,
+            Guid,
+            PagedAndSortedResultRequestDto,
+            CreateUpdateAuthorDto>,
+        IAuthorAppService
+    {
+        private readonly BookStoreMapper _mapper;
+
+        public AuthorAppService(
+            IRepository<Author, Guid> repository,
+            BookStoreMapper mapper)
+            : base(repository)
+        {
+            _mapper = mapper;
+        }
+
+        // 覆寫：Entity -> DTO
+        protected override AuthorDto MapToGetOutputDto(Author entity)
+        {
+            return _mapper.AuthorToAuthorDto(entity);
+        }
+
+        // 覆寫：Entity List -> DTO List
+        // 注意：CrudAppService 預設會迴圈呼叫 MapToGetOutputDto，
+        // 若 Mapperly 有提供 List 映射方法也可在此優化。
+
+        // 覆寫：CreateDto -> Entity
+        protected override Author MapToEntity(CreateUpdateAuthorDto createInput)
+        {
+            return _mapper.CreateDtoToAuthor(createInput);
+        }
+
+        // 覆寫：UpdateDto -> Entity
+        protected override void MapToEntity(CreateUpdateAuthorDto updateInput, Author entity)
+        {
+            // Mapperly 支援 Update 方法：
+            // _mapper.Update(updateInput, entity);
+            // 這裡假設我們在 Mapper 中定義了 UpdateAuthorFromDto
+            // _mapper.UpdateAuthorFromDto(updateInput, entity);
+
+            // 若未定義 Update 方法，可暫時手動映射或使用 ObjectMapper (若仍有設定)
+            base.MapToEntity(updateInput, entity);
+        }
+
+        public override async Task<AuthorDto> CreateAsync(CreateUpdateAuthorDto input)
+        {
+            // 檢查作者是否已存在（根據姓名）
+            var existingAuthor = await Repository.FirstOrDefaultAsync(
+                a => a.Name == input.Name);
+
+            if (existingAuthor != null)
+            {
+                throw new UserFriendlyException(
+                    $"作者 '{input.Name}' 已經存在！",
+                    "AUTHOR_ALREADY_EXISTS");
+            }
+
+            return await base.CreateAsync(input);
+        }
+    }
+}
+```
+
+#### 步驟 3：進階實作（使用領域服務）
+
+更好的做法是將業務邏輯移到領域層（同原解答，此處省略重複代碼，僅強調 Application Service 的變化）。
+
+```csharp
+// Application/Authors/AuthorAppService.cs（使用領域服務 + Mapperly）
+public class AuthorAppService : ...
+{
+    private readonly AuthorManager _authorManager;
+    private readonly BookStoreMapper _mapper;
+
+    public AuthorAppService(
+        IRepository<Author, Guid> repository,
+        AuthorManager authorManager,
+        BookStoreMapper mapper)
+        : base(repository)
+    {
+        _authorManager = authorManager;
+        _mapper = mapper;
+    }
+
+    public override async Task<AuthorDto> CreateAsync(CreateUpdateAuthorDto input)
+    {
+        // 使用領域服務建立作者
+        var author = await _authorManager.CreateAsync(
+            input.Name,
+            input.BirthDate,
+            input.Bio
+        );
+
+        // 使用 Mapperly 映射為 DTO
+        return _mapper.AuthorToAuthorDto(author);
+    }
+}
+```
+
+**理論依據**：
+
+- **CrudAppService**：提供了快速開發 CRUD 的基底類別。
+- **覆寫映射方法**：這是將 Mapperly 整合進 `CrudAppService` 的關鍵，透過覆寫 `MapToGetOutputDto` 和 `MapToEntity`，我們可以繞過預設的 `ObjectMapper` (AutoMapper)，改用高效的編譯時映射。
+- **依賴注入**：直接注入 Mapper 類別是使用 Mapperly 的標準方式。
+
+---
+
+## 總結
+
+本章練習涵蓋了 ABP Framework 應用層設計的核心概念：
+
+1. **DTO 設計**：
+
+   - 使用 ABP 提供的基類（`AuditedEntityDto`）
+   - 遵循命名慣例（`CreateDto`、`UpdateDto`）
+
+2. **物件映射 (V10)**：
+
+   - 使用 **Mapperly** 取代 AutoMapper
+   - 定義 `partial` Mapper 類別與 `[Mapper]` 屬性
+   - 在 Service 中直接注入並使用 Mapper
+
+3. **CRUD 實作**：
+   - 使用 `CrudAppService` 快速開發
+   - 覆寫方法加入自訂邏輯
+   - 使用領域服務封裝業務規則
+
+**最佳實踐**：
+
+- DTO 應該是「啞」物件，不包含業務邏輯
+- 複雜的業務規則應放在領域層
+- 使用 ABP 的異常類型提供友善的錯誤訊息
+- **優先使用 Mapperly** 以獲得最佳效能與型別安全
+
+---
+
+## 參考資源
 
 ### 解答
 

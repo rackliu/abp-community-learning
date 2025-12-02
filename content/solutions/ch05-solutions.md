@@ -282,8 +282,13 @@ public class ApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        // 自動對映 DTO
-        context.Services.AddAutoMapper(typeof(ApplicationModule));
+        // 物件映射配置
+        // V10 注意: ABP V10 預設使用 Mapperly 而非 AutoMapper
+        // 若使用 Mapperly,請直接注入 Mapper 類別,無需此行
+        // context.Services.AddAutoMapper(typeof(ApplicationModule)); // AutoMapper (舊版)
+
+        // 若使用 Mapperly (V10 推薦):
+        context.Services.AddTransient<BookStoreMapper>(); // 註冊 Mapperly Mapper
 
         // 註冊應用服務
         var assembly = typeof(ApplicationModule).Assembly;

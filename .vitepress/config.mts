@@ -3,7 +3,7 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid(defineConfig({
   title: "ABP Community Learning",
-  description: "ABP Framework V9.3 開源社群版教學",
+  description: "ABP Framework V10.0 開源社群版教學",
   lang: 'zh-TW',
   base: '/abp-community-learning/',
   

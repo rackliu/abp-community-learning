@@ -40,7 +40,7 @@
 
 ### 前置需求
 
-- .NET SDK 8.0 LTS 或更新版本（推薦）
+- .NET SDK 10.0 LTS 或更新版本（推薦）
 - Visual Studio 2022 或 VS Code
 - Git
 - Node.js 18.0+（前端開發）
@@ -121,7 +121,7 @@ dotnet run
 所有習題的詳細解答位於 `content/solutions/` 目錄：
 
 - 每個解答文件包含完整的步驟說明、程式碼範例和理論依據
-- 所有程式碼範例符合 ABP Framework V9.3 最佳實踐
+- 所有程式碼範例符合 ABP Framework V10.0 最佳實踐
 - 使用繁體中文撰寫，包含詳細的註解和說明
 
 ### 學習資源
@@ -131,7 +131,7 @@ dotnet run
 - **完整的章節內容**：25 個章節涵蓋從入門到進階的所有主題
 - **詳細的習題解答**：24 個章節的完整解答，包含程式碼範例和理論說明
 - **實戰導向**：每章都包含實際可執行的程式碼範例
-- **最佳實踐**：所有範例都遵循 ABP Framework V9.3 的最佳實踐
+- **最佳實踐**：所有範例都遵循 ABP Framework V10.0 的最佳實踐
 
 學習建議：
 
@@ -256,7 +256,7 @@ AI 模型：Google Gemini 3.0 Pro、Claude Sonnet 4.5、Claude Haiku 4.5、GPT5M
 - ✅ 25 個章節教案（ch01-ch25）
 - ✅ 24 個章節習題解答（ch01-ch24）
 - ✅ 所有習題與解答完美匹配
-- ✅ 基於 ABP Framework V9.3
+- ✅ 基於 ABP Framework V10.0
 - ✅ 繁體中文撰寫
 
 **教材特色**：

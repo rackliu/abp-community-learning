@@ -377,7 +377,39 @@ public class BookAppServiceIntegrationTests : AbpIntegratedTestBase<BookStoreApp
 
 ## 補充深入主題
 
-### AutoMapper 配置最佳實務
+### 物件映射配置 (V10 更新)
+
+> **ABP V10 變更**: ABP Framework V10 已將預設物件映射工具從 AutoMapper 改為 **Mapperly**,以獲得更好的效能與編譯時型別安全。以下範例保留 AutoMapper 作為參考,但建議新專案使用 Mapperly。
+
+#### Mapperly 配置 (推薦 - V10)
+
+```csharp
+// csharp - BookStoreMapper.cs
+using Riok.Mapperly.Abstractions;
+
+namespace BookStore;
+
+[Mapper]
+public partial class BookStoreMapper
+{
+    // Entity -> DTO
+    public partial BookDto BookToDto(Book book);
+
+    // CreateDTO -> Entity (需手動處理建構函式)
+    public Book CreateDtoToBook(CreateBookDto dto)
+    {
+        return new Book(
+            Guid.NewGuid(),
+            dto.Title,
+            dto.AuthorId,
+            dto.CategoryId,
+            dto.Price
+        );
+    }
+}
+```
+
+#### AutoMapper 配置 (舊版參考)
 
 ```csharp
 // csharp - BookProfile.cs

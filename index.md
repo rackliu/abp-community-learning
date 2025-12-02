@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: "ABP Community Learning"
-  text: "V9.3 開源社群版教學"
+  text: "V10.0 開源社群版教學"
   tagline: "從零開始，掌握企業級應用開發的最佳實踐"
   actions:
     - theme: brand
